@@ -77,11 +77,7 @@ module Anemone
       doc.search("//a[@href]").each do |a|
         u = a['href']
         next if u.nil? or u.empty?
-        if u.include? "mailto:"
-          u.slice! "mailto:"
-          @ext_links << u
-          next
-        end
+        @ext_links << u and next if u.include? "mailto:"
         abs = to_absolute(u) rescue next
         @ext_links << abs unless in_domain?(abs)
       end
