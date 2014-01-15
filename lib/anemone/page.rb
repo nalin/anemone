@@ -68,6 +68,23 @@ module Anemone
       @links.uniq!
       @links
     end
+    
+    def external_links
+      return @ext_links unless @ext_links.nil?
+      @ext_links = []
+      return @ext_links if !doc
+
+      doc.search("//a[@href]").each do |a|
+        u = a['href']
+        next if u.nil? or u.empty?
+        abs = to_absolute(u) rescue next
+        @ext_links << abs unless in_domain?(abs)
+      end
+      @ext_links.uniq!
+      @ext_links
+    end
+    
+    
 
     #
     # Nokogiri document for the HTML body
