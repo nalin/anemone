@@ -187,7 +187,7 @@ module Anemone
     # +false+ otherwise
     #
     def in_domain?(uri)
-      uri.host == @url.host
+      uri.host == @url.host || uri.host.include?(@url.host)
     end
 
     def marshal_dump
