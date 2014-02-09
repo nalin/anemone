@@ -94,6 +94,13 @@ module Anemone
     def read_timeout
       @opts[:read_timeout]
     end
+    
+    #
+    # HTTP response limit in bytes
+    #
+    def response_limit
+      @opts[:response_limit]
+    end
 
     private
 
@@ -136,7 +143,9 @@ module Anemone
         req = Net::HTTP::Get.new(full_path, opts)
         # HTTP Basic authentication
         req.basic_auth url.user, url.password if url.user
-        response = connection(url).request(req)
+        conn = connection(url)
+        return Net::HTTPBadResponse, 0 if conn.request_head(url.path)['content-length'] > response_limit
+        response = conn.request(req)
         finish = Time.now()
         response_time = ((finish - start) * 1000).round
         @cookie_store.merge!(response['Set-Cookie']) if accept_cookies?
