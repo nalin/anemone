@@ -134,7 +134,6 @@ module Anemone
         start = Time.now()
         # format request
         req = Net::HTTP::Get.new(full_path, opts)
-        req.read_timeout = read_timeout if !!read_timeout
         # HTTP Basic authentication
         req.basic_auth url.user, url.password if url.user
         response = connection(url).request(req)
