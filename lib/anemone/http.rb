@@ -151,7 +151,7 @@ module Anemone
         response_time = ((finish - start) * 1000).round
         @cookie_store.merge!(response['Set-Cookie']) if accept_cookies?
         return response, response_time
-      rescue Timeout::Error, Net::HTTPBadResponse, EOFError => e
+      rescue Timeout::Error, Net::HTTPBadResponse, EOFError, Net::HTTPServerError => e
         puts e.inspect if verbose?
         refresh_connection(url)
         retries += 1
