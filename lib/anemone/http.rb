@@ -144,7 +144,7 @@ module Anemone
         # HTTP Basic authentication
         req.basic_auth url.user, url.password if url.user
         conn = connection(url)
-        return Net::HTTPBadResponse, 0 if conn.request_head(url.path)['content-length'] > response_limit
+        return Net::HTTPBadResponse, 0 if conn.request_head(url.path)['content-length'].to_i > response_limit
         response = conn.request(req)
         finish = Time.now()
         response_time = ((finish - start) * 1000).round
