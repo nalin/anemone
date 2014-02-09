@@ -144,7 +144,7 @@ module Anemone
         # HTTP Basic authentication
         req.basic_auth url.user, url.password if url.user
         conn = connection(url)
-        return Net::HTTPBadResponse, 0 if conn.request_head(url.path)['content-length'].to_i > response_limit
+        raise Net::HTTPBadResponse.new("RESPONSE_TOO_BIG") if conn.request_head(url.path)['content-length'].to_i > response_limit
         response = conn.request(req)
         finish = Time.now()
         response_time = ((finish - start) * 1000).round
@@ -154,7 +154,7 @@ module Anemone
         puts e.inspect if verbose?
         refresh_connection(url)
         retries += 1
-        retry unless retries > 3
+        retry unless retries > 3 or e.message == "RESPONSE_TOO_BIG"
       end
     end
 
