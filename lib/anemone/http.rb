@@ -145,7 +145,7 @@ module Anemone
         req.basic_auth url.user, url.password if url.user
         conn = connection(url)
         response = conn.request_head(url.path)
-        return Net::HTTPInternalServerError.new(Net::HTTP.version_1_2, '500', 'RESPONSE_TOO_BIG'), 0 if response['content-length'].to_i > response_limit
+        return Net::HTTPInternalServerError.new(Net::HTTP.version_1_2, '500', 'RESPONSE_TOO_BIG') if response['content-length'].to_i > response_limit
         response = conn.request(req)
         finish = Time.now()
         response_time = ((finish - start) * 1000).round
