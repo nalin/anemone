@@ -32,16 +32,18 @@ module Anemone
       begin
         url = URI(url) unless url.is_a?(URI)
         pages = []
-        get(url, referer) do |response, code, location, redirect_to, response_time|
-          pages << Page.new(location, :body => response.body.dup,
-                                      :code => code,
-                                      :headers => response.to_hash,
-                                      :referer => referer,
-                                      :depth => depth,
-                                      :redirect_to => redirect_to,
-                                      :response_time => response_time)
+        response = connection(url).request_head(url.path)
+        unless response['content-length'].to_i > response_limit
+          get(url, referer) do |response, code, location, redirect_to, response_time|
+            pages << Page.new(location, :body => response.body.dup,
+                                        :code => code,
+                                        :headers => response.to_hash,
+                                        :referer => referer,
+                                        :depth => depth,
+                                        :redirect_to => redirect_to,
+                                        :response_time => response_time)
+          end
         end
-
         return pages
       rescue Exception => e
         if verbose?
@@ -143,10 +145,7 @@ module Anemone
         req = Net::HTTP::Get.new(full_path, opts)
         # HTTP Basic authentication
         req.basic_auth url.user, url.password if url.user
-        conn = connection(url)
-        response = conn.request_head(url.path)
-        return Net::HTTPInternalServerError.new(Net::HTTP.version_1_2, '500', 'RESPONSE_TOO_BIG') if response['content-length'].to_i > response_limit
-        response = conn.request(req)
+        response = connection(url).request(req)
         finish = Time.now()
         response_time = ((finish - start) * 1000).round
         @cookie_store.merge!(response['Set-Cookie']) if accept_cookies?
